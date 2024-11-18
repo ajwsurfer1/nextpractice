@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  fooocus_app:
+    image: fooocus:latest
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    volumes:
+      - /srv/docker/fooocus/bin:/srv/bin             
+      - /srv/docker/fooocus/python:/usr/local/lib/python3.10/dist-packages  
+    ports:
+      - "7865:7865"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
