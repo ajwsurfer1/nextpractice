@@ -1,20 +1,22 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
-echo "* Stopping Fooocus Web Service ..."
 CDIR=$(pwd)
-cd /srv/docker/fooocus/compose
+echo " * stopping docker practicenext docker container ..."
+cd /srv/docker/practicenext/compose
 docker-compose stop
 cd $CDIR
-echo " * done"
+echo " * done."
 
-echo "* Updating software ..."
-# add update commands here, add libraries modeles, etc...
-echo "* done"
+echo " * copying ./html/* files to /srv/docker/practicenext/html/ ..."
+rm -Rf dist
+rm -Rf /srv/docker/practicenext/html/*
+tar xvzf dist.tar.gz
+cp -Rf dist/* /srv/docker/practicenext/html/
+rm -Rf dist
+echo " * done."
 
-
-echo "* Starting Fooocus Web Service ..."
-CDIR=$(pwd)
-cd /srv/docker/fooocus/compose
+echo " * starting ar_vuejs docker container ..."
+cd /srv/docker/practicenext/compose
 docker-compose up -d
 cd $CDIR
-echo "* done."
+echo " * done."

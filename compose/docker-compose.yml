@@ -1,22 +1,26 @@
-version: '3.8'
-
+version: '2'
 services:
-  fooocus_app:
-    image: fooocus:latest
-    runtime: nvidia
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    volumes:
-      - /srv/docker/fooocus/bin:/srv/bin             
-      - /srv/docker/fooocus/python:/usr/local/lib/python3.10/dist-packages  
+  practicenext:
+    image: "ajsurfco/practicenext:0.1"
     ports:
-      - "7865:7865"
+      - "8091:8000"
+    volumes:
+      - /srv/docker/practicenext/html:/srv/public
+    restart: always
+#    depends_on:
+#      - couchdb
     deploy:
       resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
+        limits:
+          memory: 500M
+#  couchdb:
+#    image: couchdb:3.3
+#    ports:
+#      - "5984:5984"  # CouchDB default port
+#    environment:
+#      COUCHDB_USER: admin
+#      COUCHDB_PASSWORD: password
+#    volumes:
+#      - /srv/docker/practicenext/db:/opt/couchdb/data
+#    restart: always
 

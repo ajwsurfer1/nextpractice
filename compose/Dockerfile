@@ -1,29 +1,35 @@
-FROM nvidia/cuda:12.2.2-runtime-ubuntu22.04
-#  update this to use the Nvidia software setup on your machine
+FROM python:3.11.1-alpine3.17
 
-# Set up environment variables
-ENV PYTHONUNBUFFERED=1
-ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+# Description: A quick and dirty Bottle Python file server monkey patched to provide asynchronous connections
 
-# Install required dependencies (for example Python, pip)
-RUN apt-get update && apt-get install -y \
-    python3-pip curl git && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Author Andrew Tomczak, ajwsurfer@gmail.com, AJ Surf Co
+# Date: January 22, 2024
 
-RUN ln -s /usr/bin/python3.10 /usr/bin/python
-
+############# requirements installation ########################################
 WORKDIR /srv
+RUN pip install fastapi
+RUN pip install uvicorn
+RUN pip install jinja2
+#RUN pip install pydantic
+#RUN pip install couchdb  # Install CouchDB library
 
+############# setup server #####################################################
+RUN mkdir -p /srv/data
+COPY main.py /srv/
+COPY favicon.ico /srv/
+#COPY download_counter.json /srv/
+RUN set -x ; \
+  addgroup -g 82 -S www-data ; \
+  adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
 
-# Copy the bash run script to the container
-COPY run.sh /srv/run.sh
-RUN chmod +x /srv/run.sh
+RUN chown -Rf www-data:www-data /srv/*
+#RUN chmod +rw /srv/download_counter.json
+USER www-data
 
-# Expose the default port
-EXPOSE 7865
+############# debug ############################################################
+ENV TERM xterm
 
-# Install and run Fooocus using the run.sh CMD
-CMD ["/srv/run.sh"]
+############# runtime ##########################################################
+EXPOSE 8000
+CMD [ "uvicorn", "main:app", "--reload", "--host", "0.0.0.0" ]
 
